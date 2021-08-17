@@ -6,5 +6,5 @@ Learn Spring Boot: https://github.com/xkcoding/spring-boot-demo
 Suggested IDE: IntelliJ IDEA Ultimate version (which has module for Spring projects), can be activated by your Tsinghua mail account.  
 **Config MySQL Database**: (Make sure that you login as root)   
 mysql> create database db_example;  
-mysql> create user 'springuser'@'%' identified my 'ThePasswword';  
+mysql> create user 'springuser'@'%' identified by 'ThePassword';  
 mysql> grant all on db_example.* to 'springuser'@'%';
