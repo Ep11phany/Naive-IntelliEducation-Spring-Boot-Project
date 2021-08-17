@@ -4,6 +4,8 @@ import javax.persistence.*;
 import java.math.BigInteger;
 import java.security.*;
 
+import com.fasterxml.jackson.annotation.*;
+
 @Entity // This tells Hibernate to make a table out of this class
 public class User {
     @Id
