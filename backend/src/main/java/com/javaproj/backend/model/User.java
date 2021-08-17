@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import java.security.*;
 
 import com.fasterxml.jackson.annotation.*;
+import org.springframework.util.DigestUtils;
 
 @Entity // This tells Hibernate to make a table out of this class
 public class User {
@@ -31,14 +32,7 @@ public class User {
     }
 
     public void setPassword(String password) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            byte[] messageDigest = md.digest(password.getBytes());
-            BigInteger no = new BigInteger(1, messageDigest);
-            this.password = no.toString(16);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
+        this.password = DigestUtils.md5DigestAsHex(password.getBytes());
     }
 
     public String getName() {
