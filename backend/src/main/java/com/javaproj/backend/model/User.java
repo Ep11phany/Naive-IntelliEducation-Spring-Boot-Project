@@ -1,10 +1,6 @@
 package com.javaproj.backend.model;
 
 import javax.persistence.*;
-import java.math.BigInteger;
-import java.security.*;
-
-import com.fasterxml.jackson.annotation.*;
 import org.springframework.util.DigestUtils;
 
 @Entity // This tells Hibernate to make a table out of this class
