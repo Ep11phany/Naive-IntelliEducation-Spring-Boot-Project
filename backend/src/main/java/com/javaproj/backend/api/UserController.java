@@ -11,24 +11,13 @@ import com.javaproj.backend.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.server.reactive.HttpHandler;
-import org.springframework.stereotype.Controller;
 import org.springframework.util.DigestUtils;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 
-import java.math.BigInteger;
-import java.net.http.HttpHeaders;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.Timestamp;
+import javax.transaction.Transactional;
 import java.util.*;
 
+@Transactional
 @RestController // This means that this class is a Controller
 @RequestMapping(path="/api/user")
 public class UserController {

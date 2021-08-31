@@ -10,7 +10,7 @@ public class Favorite {
 
     private String url;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     private User user;
 
     public Integer getId() {
