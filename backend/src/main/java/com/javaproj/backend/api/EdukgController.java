@@ -9,17 +9,17 @@ import org.springframework.web.client.RestTemplate;
 @RestController
 @RequestMapping(path="/api/edukg")
 public class EdukgController {
-    private String id;
+    private static String id;
 
     @GetMapping(path = "/updateID")
-    public String idForEdukg() {
+    public static String idForEdukg() {
         String url = "http://open.edukg.cn/opedukg/api/typeAuth/user/login";
         RestTemplate restTemplate = new RestTemplate();
         MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
         params.add("password", "ZMLgood1");
         params.add("phone", "16643235607");
         String resJson = restTemplate.postForObject(url, params, String.class);
-        this.id = JSON.parseObject(resJson).getString("id");
+        id = JSON.parseObject(resJson).getString("id");
         return JSON.parseObject(resJson).getString("id");
     } // return my id for edukg
 
