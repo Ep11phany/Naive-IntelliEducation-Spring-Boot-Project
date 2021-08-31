@@ -28,10 +28,6 @@ public class EdukgController {
     String searchInstance(@RequestParam String course, @RequestParam String searchKey) {
         String url = "http://open.edukg.cn/opedukg/api/typeOpen/open/instanceList?course={course}&searchKey={searchKey}&id={id}";
         RestTemplate restTemplate = new RestTemplate();
-//        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-//        params.add("course", course);
-//        params.add("searchKey", searchKey);
-//        params.add("id", idForEdukg());
         String resJson = restTemplate.getForObject(url, String.class, course, searchKey, this.id);
         return resJson;
     }
