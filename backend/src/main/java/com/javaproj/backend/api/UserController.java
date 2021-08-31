@@ -87,6 +87,9 @@ public class UserController {
     public @ResponseBody JsonResult<User> modifyInfo (@RequestParam String name, @RequestParam String newName, @RequestParam String email) {
         User n = userRepository.findByName(name);
         if (n == null) return new JsonResult<>("404", "User not found!"); //I guess it never happens.
+        if(!userRepository.findAllByName(newName).isEmpty()) {
+            return new JsonResult<>("404", "New Name Duplicated!");
+        }
         n.setEmail(email);
         n.setName(newName);
         userRepository.save(n);
@@ -97,6 +100,12 @@ public class UserController {
     public @ResponseBody JsonResult<Iterable<User>> getAllUsers() {
         // This returns a JSON or XML with the users
         return new JsonResult<>(userRepository.findAll());
+    }
+
+    @GetMapping(path = "/deleteUser")
+    public @ResponseBody JsonResult<Object> deleteUser(@RequestParam String name) {
+        userRepository.deleteByName(name);
+        return new JsonResult<>();
     }
 
     /**
