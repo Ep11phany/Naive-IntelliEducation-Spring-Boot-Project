@@ -3,6 +3,8 @@ package com.javaproj.backend.model;
 import javax.persistence.*;
 import org.springframework.util.DigestUtils;
 
+import java.util.List;
+
 @Entity // This tells Hibernate to make a table out of this class
 public class User {
     @Id
@@ -14,6 +16,12 @@ public class User {
     private String email;
 
     private String password;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<History> historyList;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Favorite> favoriteList;
 
     public Integer getId() {
         return id;

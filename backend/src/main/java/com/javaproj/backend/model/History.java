@@ -1,7 +1,6 @@
 package com.javaproj.backend.model;
 
 import javax.persistence.*;
-import java.util.Date;
 
 @Entity
 public class History {
@@ -13,7 +12,7 @@ public class History {
 
     private Long time;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     private User user;
 
     public Integer getId() {
