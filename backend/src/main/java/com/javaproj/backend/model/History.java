@@ -8,7 +8,9 @@ public class History {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-    private String url;
+    private String instance;
+
+    private String subject;
 
     private Long time;
 
@@ -19,25 +21,21 @@ public class History {
         return id;
     }
 
-    public String getUrl() {
-        return url;
-    }
-
-    public Long getTime() {
-        return time;
+    public String getInstance() {
+        return instance;
     }
 
     public void setId(Integer id) {
         this.id = id;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setInstance(String instance) {
+        this.instance = instance;
     }
 
-    public void setTime(Long time) {
-        this.time = time;
-    }
+    public String getSubject() { return subject; }
+
+    public void setSubject(String subject) { this.subject = subject; }
 
     public User getUser() {
         return user;
@@ -45,5 +43,11 @@ public class History {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public Long getTime() { return time; }
+
+    public void setTime(Long time) {
+        this.time = time;
     }
 }

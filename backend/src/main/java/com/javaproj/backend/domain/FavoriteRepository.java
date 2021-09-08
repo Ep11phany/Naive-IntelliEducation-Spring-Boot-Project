@@ -8,8 +8,8 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.List;
 
 public interface FavoriteRepository extends CrudRepository<Favorite, Integer> {
-    Favorite findByUrlAndUser(String url, User user);
-    void deleteByUrlAndUser(String url, User user);
+    Favorite findByInstanceAndSubjectAndUser(String instance, String subject, User user);
+    void deleteByInstanceAndSubjectAndUser(String instance, String subject, User user);
     List<Favorite> findAllByUser(User user);
     void deleteAllByUser(User user);
 }

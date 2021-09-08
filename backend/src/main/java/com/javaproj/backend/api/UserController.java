@@ -1,6 +1,5 @@
 package com.javaproj.backend.api;
 
-import com.alibaba.fastjson.*;
 import com.javaproj.backend.config.JsonResult;
 import com.javaproj.backend.domain.FavoriteRepository;
 import com.javaproj.backend.domain.HistoryRepository;
@@ -8,8 +7,6 @@ import com.javaproj.backend.domain.UserRepository;
 import com.javaproj.backend.model.Favorite;
 import com.javaproj.backend.model.History;
 import com.javaproj.backend.model.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
@@ -29,8 +26,6 @@ public class UserController {
     @Autowired
     private FavoriteRepository favoriteRepository;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
     @PostMapping(path="/register") // Map ONLY POST Requests
     public JsonResult<User> addNewUser (@RequestParam String name
             , @RequestParam String email, @RequestParam String password) {
@@ -38,25 +33,28 @@ public class UserController {
         // @RequestParam means it is a parameter from the GET or POST request
         List<User> userList = userRepository.findAllByName(name);
         if(!userList.isEmpty()) {
-            JsonResult<User> res = new JsonResult<>("404", "Name Duplicated!");
-            return res;
+            return new JsonResult<>("404", "Name Duplicated!");
         }
         User n = new User();
         n.setName(name);
         n.setEmail(email);
         n.setPassword(password);
         userRepository.save(n);
-        JsonResult<User> res = new JsonResult<>(n);
-        return res;
+        return new JsonResult<>(n);
     }
 
     @GetMapping(path="/login")
     public @ResponseBody JsonResult<User> userLogin(@RequestParam String name, @RequestParam String password) {
         String psw = DigestUtils.md5DigestAsHex(password.getBytes());
         User n1 = userRepository.findByName(name);
-        if(n1 == null) return new JsonResult<>("404", "User not found!");
-        if(n1.getPassword().equals(psw)) return new JsonResult<>(n1);
-        else return new JsonResult<>("404", "Wrong Password!");
+        if(n1 == null) {
+            return new JsonResult<>("404", "User not found!");
+        }
+        if(n1.getPassword().equals(psw)) {
+            return new JsonResult<>(n1);
+        } else {
+            return new JsonResult<>("404", "Wrong Password!");
+        }
     }
 
     @PostMapping(path = "/modifyPassword")
@@ -64,9 +62,13 @@ public class UserController {
     JsonResult<User> modifyPassword (@RequestParam String name
     , @RequestParam String newPassword, @RequestParam String oldPassword) {
         User n = userRepository.findByName(name);
-        if (n == null) return new JsonResult<>("404", "User not found!"); //I guess it never happens.
+        if (n == null) {
+            return new JsonResult<>("404", "User not found!"); //I guess it never happens.
+        }
         String oldPsw = DigestUtils.md5DigestAsHex(oldPassword.getBytes());
-        if (n.getPassword() != oldPsw) return new JsonResult<>("404", "Password wrong!");
+        if (!n.getPassword().equals(oldPsw)) {
+            return new JsonResult<>("404", "Password wrong!");
+        }
         n.setPassword(newPassword);
         userRepository.save(n);
         return new JsonResult<>(n);
@@ -75,7 +77,9 @@ public class UserController {
     @PostMapping(path = "/modifyInfo")
     public @ResponseBody JsonResult<User> modifyInfo (@RequestParam String name, @RequestParam String newName, @RequestParam String email) {
         User n = userRepository.findByName(name);
-        if (n == null) return new JsonResult<>("404", "User not found!"); //I guess it never happens.
+        if (n == null) {
+            return new JsonResult<>("404", "User not found!"); //I guess it never happens.
+        }
         if(!userRepository.findAllByName(newName).isEmpty()) {
             return new JsonResult<>("404", "New Name Duplicated!");
         }
@@ -99,7 +103,7 @@ public class UserController {
 
     /**
      * 任何时候不允许使用！
-     * @return
+     * @return JsonResult<User>
      */
     @GetMapping(path="/deleteAllUser")
     public @ResponseBody JsonResult<User> clearUsers() {
@@ -108,23 +112,24 @@ public class UserController {
     }
 
     @GetMapping(path = "/addHistory")
-    public @ResponseBody JsonResult<History> addHistory(@RequestParam String url, @RequestParam String name) {
+    public @ResponseBody JsonResult<History> addHistory(@RequestParam String instance, @RequestParam String subject, @RequestParam String name) {
+        History newHistory = new History();
         try {
-            History history = historyRepository.findByUrlAndUser(url, userRepository.findByName(name));
+            History history = historyRepository.findByInstanceAndSubjectAndUser(instance, subject, userRepository.findByName(name));
             if(!history.equals(null)) {
-                return new JsonResult<>(historyRepository.findByUrlAndUser(url, userRepository.findByName(name)));
+                return new JsonResult<>(historyRepository.findByInstanceAndSubjectAndUser(instance, subject, userRepository.findByName(name)));
             } else {
-                History newHistory = new History();
                 newHistory.setUser(userRepository.findByName(name));
-                newHistory.setUrl(url);
+                newHistory.setInstance(instance);
+                newHistory.setSubject(subject);
                 newHistory.setTime(System.currentTimeMillis());
                 historyRepository.save(newHistory);
                 return new JsonResult<>(newHistory);
             }
         } catch (NullPointerException e) {
-            History newHistory = new History();
             newHistory.setUser(userRepository.findByName(name));
-            newHistory.setUrl(url);
+            newHistory.setInstance(instance);
+            newHistory.setSubject(subject);
             newHistory.setTime(System.currentTimeMillis());
             historyRepository.save(newHistory);
             return new JsonResult<>(newHistory);
@@ -133,13 +138,17 @@ public class UserController {
 
     @GetMapping(path = "/showHistory")
     public @ResponseBody JsonResult<List<History>> showHistory(@RequestParam String name) {
-        return new JsonResult<>(historyRepository.findAllByUser(userRepository.findByName(name)));
+        try {
+            return new JsonResult<>(historyRepository.findAllByUser(userRepository.findByName(name)));
+        } catch (NullPointerException e) {
+            return new JsonResult<>("404", "History not exist!");
+        }
     }
 
     @GetMapping(path = "/deleteHistory")
-    public @ResponseBody JsonResult<Object> deleteHistory(@RequestParam String url, @RequestParam String name) {
+    public @ResponseBody JsonResult<Object> deleteHistory(@RequestParam String instance, @RequestParam String subject, @RequestParam String name) {
         try {
-            historyRepository.deleteByUrlAndUser(url, userRepository.findByName(name));
+            historyRepository.deleteByInstanceAndSubjectAndUser(instance, subject, userRepository.findByName(name));
             return new JsonResult<>();
         } catch (NullPointerException e) {
             return new JsonResult<>("404", "History not exist!");
@@ -157,21 +166,23 @@ public class UserController {
     }
 
     @GetMapping(path = "/addFavorite")
-    public @ResponseBody JsonResult<Favorite> addFavorite(@RequestParam String url, @RequestParam String name) {
+    public @ResponseBody JsonResult<Favorite> addFavorite(@RequestParam String instance, @RequestParam String subject, @RequestParam String name) {
         try {
-            Favorite favorite = favoriteRepository.findByUrlAndUser(url, userRepository.findByName(name));
+            Favorite favorite = favoriteRepository.findByInstanceAndSubjectAndUser(instance, subject, userRepository.findByName(name));
             if(!favorite.equals(null)) {
                 return new JsonResult<>(favorite);
             } else {
                 Favorite newFavorite = new Favorite();
-                newFavorite.setUrl(url);
+                newFavorite.setInstance(instance);
+                newFavorite.setSubject(subject);
                 newFavorite.setUser(userRepository.findByName(name));
                 favoriteRepository.save(newFavorite);
                 return new JsonResult<>(newFavorite);
             }
         } catch (NullPointerException e) {
             Favorite newFavorite = new Favorite();
-            newFavorite.setUrl(url);
+            newFavorite.setInstance(instance);
+            newFavorite.setSubject(subject);
             newFavorite.setUser(userRepository.findByName(name));
             favoriteRepository.save(newFavorite);
             return new JsonResult<>(newFavorite);
@@ -184,9 +195,9 @@ public class UserController {
     }
 
     @GetMapping(path = "/deleteFavorite")
-    public @ResponseBody JsonResult<Object> deleteFavorite(@RequestParam String url, @RequestParam String name) {
+    public @ResponseBody JsonResult<Object> deleteFavorite(@RequestParam String instance, @RequestParam String subject, @RequestParam String name) {
         try {
-            favoriteRepository.deleteByUrlAndUser(url, userRepository.findByName(name));
+            favoriteRepository.deleteByInstanceAndSubjectAndUser(instance, subject, userRepository.findByName(name));
             return new JsonResult<>();
         } catch (NullPointerException e) {
             return new JsonResult<>("404", "Favorite not exist!");

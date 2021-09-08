@@ -7,8 +7,8 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.List;
 
 public interface HistoryRepository extends CrudRepository<History, Integer> {
-    History findByUrlAndUser(String url, User user);
-    void deleteByUrlAndUser(String url, User user);
+    History findByInstanceAndSubjectAndUser(String instance, String subject, User user);
+    void deleteByInstanceAndSubjectAndUser(String instance, String subject, User user);
     List<History> findAllByUser(User user);
     void deleteAllByUser(User user);
 }
