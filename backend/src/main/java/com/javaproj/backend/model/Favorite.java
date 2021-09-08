@@ -8,7 +8,11 @@ public class Favorite {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-    private String url;
+    private String instance;
+
+    private String subject;
+
+    private Long time;
 
     @ManyToOne
     private User user;
@@ -17,17 +21,21 @@ public class Favorite {
         return id;
     }
 
-    public String getUrl() {
-        return url;
+    public String getInstance() {
+        return instance;
     }
 
     public void setId(Integer id) {
         this.id = id;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setInstance(String instance) {
+        this.instance = instance;
     }
+
+    public String getSubject() { return subject; }
+
+    public void setSubject(String subject) { this.subject = subject; }
 
     public User getUser() {
         return user;
@@ -35,5 +43,11 @@ public class Favorite {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public Long getTime() { return time; }
+
+    public void setTime(Long time) {
+        this.time = time;
     }
 }
