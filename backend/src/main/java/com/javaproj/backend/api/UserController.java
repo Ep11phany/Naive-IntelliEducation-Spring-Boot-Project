@@ -115,17 +115,12 @@ public class UserController {
     public @ResponseBody JsonResult<History> addHistory(@RequestParam String instance, @RequestParam String subject, @RequestParam String name) {
         History newHistory = new History();
         try {
-            History history = historyRepository.findByInstanceAndSubjectAndUser(instance, subject, userRepository.findByName(name));
-            if(!history.equals(null)) {
-                return new JsonResult<>(historyRepository.findByInstanceAndSubjectAndUser(instance, subject, userRepository.findByName(name)));
-            } else {
-                newHistory.setUser(userRepository.findByName(name));
-                newHistory.setInstance(instance);
-                newHistory.setSubject(subject);
-                newHistory.setTime(System.currentTimeMillis());
-                historyRepository.save(newHistory);
-                return new JsonResult<>(newHistory);
-            }
+            newHistory.setUser(userRepository.findByName(name));
+            newHistory.setInstance(instance);
+            newHistory.setSubject(subject);
+            newHistory.setTime(System.currentTimeMillis());
+            historyRepository.save(newHistory);
+            return new JsonResult<>(newHistory);
         } catch (NullPointerException e) {
             newHistory.setUser(userRepository.findByName(name));
             newHistory.setInstance(instance);
@@ -168,17 +163,12 @@ public class UserController {
     @GetMapping(path = "/addFavorite")
     public @ResponseBody JsonResult<Favorite> addFavorite(@RequestParam String instance, @RequestParam String subject, @RequestParam String name) {
         try {
-            Favorite favorite = favoriteRepository.findByInstanceAndSubjectAndUser(instance, subject, userRepository.findByName(name));
-            if(!favorite.equals(null)) {
-                return new JsonResult<>(favorite);
-            } else {
-                Favorite newFavorite = new Favorite();
-                newFavorite.setInstance(instance);
-                newFavorite.setSubject(subject);
-                newFavorite.setUser(userRepository.findByName(name));
-                favoriteRepository.save(newFavorite);
-                return new JsonResult<>(newFavorite);
-            }
+            Favorite newFavorite = new Favorite();
+            newFavorite.setInstance(instance);
+            newFavorite.setSubject(subject);
+            newFavorite.setUser(userRepository.findByName(name));
+            favoriteRepository.save(newFavorite);
+            return new JsonResult<>(newFavorite);
         } catch (NullPointerException e) {
             Favorite newFavorite = new Favorite();
             newFavorite.setInstance(instance);

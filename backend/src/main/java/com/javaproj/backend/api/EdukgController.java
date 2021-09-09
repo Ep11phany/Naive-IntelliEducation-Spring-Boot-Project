@@ -15,7 +15,7 @@ public class EdukgController {
     private static String id;
 
     @GetMapping(path = "/updateID")
-    @Scheduled(fixedRate = 1800000)
+    @Scheduled(fixedRate = 300000)
     public static String idForEdukg() {
         String url = "http://open.edukg.cn/opedukg/api/typeAuth/user/login";
         RestTemplate restTemplate = new RestTemplate();

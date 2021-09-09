@@ -70,8 +70,13 @@
             <artifactId>httpclient</artifactId>
             <version>4.5.13</version>
         </dependency>
-    </dependencies>
 
+        <dependency>
+            <groupId>com.hankcs</groupId>
+            <artifactId>hanlp</artifactId>
+            <version>portable-1.7.4</version>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>
