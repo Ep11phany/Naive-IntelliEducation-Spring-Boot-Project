@@ -1,12 +1,22 @@
 package com.javaproj.backend.api;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.javaproj.backend.config.JsonResult;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+import com.hankcs.hanlp.HanLP;
+
+import java.io.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Random;
 
 @RestController
 @Component
@@ -68,8 +78,7 @@ public class EdukgController {
     public @ResponseBody String questionListByInstance(@RequestParam String uriName) {
         String url = "http://open.edukg.cn/opedukg/api/typeOpen/open/questionListByUriName?uriName={uriName}&id={id}";
         RestTemplate restTemplate = new RestTemplate();
-        String resJson = restTemplate.getForObject(url, String.class, uriName, id);
-        return resJson;
+        return restTemplate.getForObject(url, String.class, uriName, id);
     }
 
     @PostMapping(path = "/relatedSubject")
@@ -80,11 +89,10 @@ public class EdukgController {
         params.add("course", course);
         params.add("subjectName", subjectName);
         params.add("id", id);
-        String resJson = restTemplate.postForObject(url, params, String.class);
-        return resJson;
+        return restTemplate.postForObject(url, params, String.class);
     }
 
-    @PostMapping(path = "knowledgeCard")
+    @PostMapping(path = "/knowledgeCard")
     public @ResponseBody String knowledgeCard(@RequestParam String course, @RequestParam String uri) {
         String url = "http://open.edukg.cn/opedukg/api/typeOpen/open/getKnowledgeCard";
         RestTemplate restTemplate = new RestTemplate();
@@ -92,7 +100,42 @@ public class EdukgController {
         params.add("course", course);
         params.add("uri", uri);
         params.add("id", id);
-        String resJson = restTemplate.postForObject(url, params, String.class);
-        return resJson;
+        return restTemplate.postForObject(url, params, String.class);
+    }
+
+    @GetMapping(path = "/instanceRecommend")
+    public @ResponseBody
+    JsonResult<Object> instanceRecommendation(@RequestParam String course) throws IOException, InterruptedException {
+        String url = "http://open.edukg.cn/opedukg/api/typeOpen/open/infoByInstanceName?course={course}&name={name}&id={id}";
+        RestTemplate restTemplate = new RestTemplate();
+        List<String> res = new LinkedList<>();
+        File nameListFile = ResourceUtils.getFile("classpath:static/" + course + "_instanceName.json");
+        FileReader fileReader = new FileReader(nameListFile);
+        Reader reader = new InputStreamReader(new FileInputStream(nameListFile), "utf-8");
+        int ch = 0;
+        StringBuffer sb = new StringBuffer();
+        while ((ch = reader.read()) != -1) {
+            sb.append((char) ch);
+        }
+        fileReader.close();
+        reader.close();
+        JSONArray jsonArray= JSONObject.parseArray(sb.toString());
+        List<String> nameList = new LinkedList<>();
+        for(int i = 0; i < jsonArray.size(); i++) {
+            nameList.add(jsonArray.getObject(i, String.class));
+        }
+        List<Integer> utils = new LinkedList<>();
+        for(int index = 0; index < 20; index++) {
+            Random random = new Random();
+            while(true) {
+                int i = random.nextInt(nameList.size());
+                if(!utils.contains(i)) {
+                    utils.add(i);
+                    res.add(restTemplate.getForObject(url, String.class, course, nameList.get(i), id));
+                    break;
+                }
+            }
+        }
+        return new JsonResult<>(res);
     }
 }
