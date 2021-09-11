@@ -109,15 +109,13 @@ public class EdukgController {
         String url = "http://open.edukg.cn/opedukg/api/typeOpen/open/infoByInstanceName?course={course}&name={name}&id={id}";
         RestTemplate restTemplate = new RestTemplate();
         List<String> res = new LinkedList<>();
-        File nameListFile = ResourceUtils.getFile("classpath:static/" + course + "_instanceName.json");
-        FileReader fileReader = new FileReader(nameListFile);
-        Reader reader = new InputStreamReader(new FileInputStream(nameListFile), "utf-8");
+        InputStream inputStream = this.getClass().getResourceAsStream("/static/" + course + "_instanceName.json");
+        Reader reader = new InputStreamReader(inputStream, "utf-8");
         int ch = 0;
         StringBuffer sb = new StringBuffer();
         while ((ch = reader.read()) != -1) {
             sb.append((char) ch);
         }
-        fileReader.close();
         reader.close();
         JSONArray jsonArray= JSONObject.parseArray(sb.toString());
         List<String> nameList = new LinkedList<>();
