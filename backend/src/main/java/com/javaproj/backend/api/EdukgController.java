@@ -14,7 +14,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
-import com.hankcs.hanlp.HanLP;
 
 import java.io.*;
 import java.util.*;
@@ -87,7 +86,7 @@ public class EdukgController {
         for(int i = 0; i < questionList.size(); i++) {
             Long questionID = questionList.getJSONObject(i).getLong("id");
             String qBody = questionList.getJSONObject(i).getString("qBody");
-            String qAnswer = questionList.getJSONObject(i).getString("qAnswer");
+            String qAnswer = questionList.getJSONObject(i).getString("qAnswer").replace("答案", "");
             if(questionCollectRepository.findByQuestionID(questionID) == null) {
                 QuestionCollect questionCollect = new QuestionCollect();
                 questionCollect.setQuestionID(questionID);
@@ -179,7 +178,7 @@ public class EdukgController {
         Iterable<QuestionCollect> questionCollectIterable = questionCollectRepository.findAll();
         List<QuestionCollect> questionCollectList = new LinkedList<>();
         questionCollectIterable.forEach(questionCollectList::add);
-        Comparator<QuestionCollect> comparator = new Comparator<QuestionCollect>() {
+        Comparator<QuestionCollect> comparator = new Comparator<>() {
             @Override
             public int compare(QuestionCollect o1, QuestionCollect o2) {
                 if(SimilarityUtil.getSimilarity(o1.getqBody(), label) > SimilarityUtil.getSimilarity(o2.getqBody(), label)) {
@@ -190,9 +189,7 @@ public class EdukgController {
             }
         };
         questionCollectList.sort(comparator);
-        if(questionCollectList.size() > 20) {
-            questionCollectList = questionCollectList.subList(0, 19);
-        }
+        questionCollectList = questionCollectList.subList(0, 19);
         return new JsonResult<>(questionCollectList);
     }
 }
