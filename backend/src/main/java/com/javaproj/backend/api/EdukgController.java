@@ -145,8 +145,9 @@ public class EdukgController {
             Random random = new Random();
             while(true) {
                 int i = random.nextInt(nameList.size());
-                if(!utils.contains(i)) {
+                if(!utils.contains(i) && !nameList.get(i).contains(" ")) {
                     JSONObject instanceReturn = restTemplate.getForObject(url, JSONObject.class, course, nameList.get(i), id);
+                    instanceReturn.getJSONObject("data").getString("label").replace(" ", "");
                     if(instanceReturn.getString("code") != "0") {
                         JSONObject searchInstanceReturn = restTemplate.getForObject(anotherUrl, JSONObject.class, course, instanceReturn.getJSONObject("data").getString("label"), id);
                         if(searchInstanceReturn.getJSONArray("data").size() == 0) {
