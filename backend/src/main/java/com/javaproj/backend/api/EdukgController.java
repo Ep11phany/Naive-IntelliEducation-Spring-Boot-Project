@@ -32,8 +32,8 @@ public class EdukgController {
         String url = "http://open.edukg.cn/opedukg/api/typeAuth/user/login";
         RestTemplate restTemplate = new RestTemplate();
         MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
-        params.add("password", "Marksu010204");
-        params.add("phone", "18618452874");
+        params.add("password", "ZMLgood1");
+        params.add("phone", "15535939777");
         String resJson = restTemplate.postForObject(url, params, String.class);
         id = JSON.parseObject(resJson).getString("id");
     } // return my id for edukg
@@ -141,30 +141,24 @@ public class EdukgController {
             nameList.add(jsonArray.getObject(i, String.class));
         }
         List<Integer> utils = new LinkedList<>();
+        Random random = new Random();
+        int i = random.nextInt(nameList.size() - 20);
         for(int index = 0; index < 20; index++) {
-            Random random = new Random();
-            while(true) {
-                int i = random.nextInt(nameList.size());
-                if(!utils.contains(i) && !nameList.get(i).contains(" ")) {
-                    JSONObject instanceReturn = restTemplate.getForObject(url, JSONObject.class, course, nameList.get(i), id);
-                    instanceReturn.getJSONObject("data").getString("label").replace(" ", "");
-                    if(instanceReturn.getString("code") != "0") {
-                        JSONObject searchInstanceReturn = restTemplate.getForObject(anotherUrl, JSONObject.class, course, instanceReturn.getJSONObject("data").getString("label"), id);
-                        if(searchInstanceReturn.getJSONArray("data").size() == 0) {
-                            instanceReturn.getJSONObject("data").put("category", "");
+            JSONObject instanceReturn = restTemplate.getForObject(url, JSONObject.class, course, nameList.get(i + index), id);
+            instanceReturn.getJSONObject("data").getString("label").replace(" ", "");
+            if(instanceReturn.getString("code") != "0") {
+                JSONObject searchInstanceReturn = restTemplate.getForObject(anotherUrl, JSONObject.class, course, instanceReturn.getJSONObject("data").getString("label"), id);
+                if(searchInstanceReturn.getJSONArray("data").size() == 0) {
+                    instanceReturn.getJSONObject("data").put("category", "");
+                    res.add(instanceReturn.toJSONString());
+                    utils.add(i);
+                } else {
+                    JSONArray jsonArray1 = searchInstanceReturn.getJSONArray("data");
+                    for (int j = 0; j < jsonArray1.size(); j++) {
+                        if (((String) jsonArray1.getJSONObject(j).get("label")).equals(nameList.get(i))) {
+                            instanceReturn.getJSONObject("data").put("category", jsonArray1.getJSONObject(j).getString("category"));
                             res.add(instanceReturn.toJSONString());
                             utils.add(i);
-                            break;
-                        } else {
-                            JSONArray jsonArray1 = searchInstanceReturn.getJSONArray("data");
-                            for (int j = 0; j < jsonArray1.size(); j++) {
-                                if (((String) jsonArray1.getJSONObject(j).get("label")).equals(nameList.get(i))) {
-                                    instanceReturn.getJSONObject("data").put("category", jsonArray1.getJSONObject(j).getString("category"));
-                                    res.add(instanceReturn.toJSONString());
-                                    utils.add(i);
-                                    break;
-                                }
-                            }
                             break;
                         }
                     }
