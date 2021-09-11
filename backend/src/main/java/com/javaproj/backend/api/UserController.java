@@ -1,11 +1,10 @@
 package com.javaproj.backend.api;
 
 import com.javaproj.backend.config.JsonResult;
-import com.javaproj.backend.domain.FavoriteRepository;
-import com.javaproj.backend.domain.HistoryRepository;
-import com.javaproj.backend.domain.UserRepository;
+import com.javaproj.backend.domain.*;
 import com.javaproj.backend.model.Favorite;
 import com.javaproj.backend.model.History;
+import com.javaproj.backend.model.Question;
 import com.javaproj.backend.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.DigestUtils;
@@ -25,6 +24,8 @@ public class UserController {
     private HistoryRepository historyRepository;
     @Autowired
     private FavoriteRepository favoriteRepository;
+    @Autowired
+    private QuestionRepository questionRepository;
 
     @PostMapping(path="/register") // Map ONLY POST Requests
     public JsonResult<User> addNewUser (@RequestParam String name
@@ -114,21 +115,12 @@ public class UserController {
     @GetMapping(path = "/addHistory")
     public @ResponseBody JsonResult<History> addHistory(@RequestParam String instance, @RequestParam String subject, @RequestParam String name) {
         History newHistory = new History();
-        try {
-            newHistory.setUser(userRepository.findByName(name));
-            newHistory.setInstance(instance);
-            newHistory.setSubject(subject);
-            newHistory.setTime(System.currentTimeMillis());
-            historyRepository.save(newHistory);
-            return new JsonResult<>(newHistory);
-        } catch (NullPointerException e) {
-            newHistory.setUser(userRepository.findByName(name));
-            newHistory.setInstance(instance);
-            newHistory.setSubject(subject);
-            newHistory.setTime(System.currentTimeMillis());
-            historyRepository.save(newHistory);
-            return new JsonResult<>(newHistory);
-        }
+        newHistory.setUser(userRepository.findByName(name));
+        newHistory.setInstance(instance);
+        newHistory.setSubject(subject);
+        newHistory.setTime(System.currentTimeMillis());
+        historyRepository.save(newHistory);
+        return new JsonResult<>(newHistory);
     }
 
     @GetMapping(path = "/showHistory")
@@ -162,21 +154,15 @@ public class UserController {
 
     @GetMapping(path = "/addFavorite")
     public @ResponseBody JsonResult<Favorite> addFavorite(@RequestParam String instance, @RequestParam String subject, @RequestParam String name) {
-        try {
-            Favorite newFavorite = new Favorite();
-            newFavorite.setInstance(instance);
-            newFavorite.setSubject(subject);
-            newFavorite.setUser(userRepository.findByName(name));
-            favoriteRepository.save(newFavorite);
-            return new JsonResult<>(newFavorite);
-        } catch (NullPointerException e) {
-            Favorite newFavorite = new Favorite();
-            newFavorite.setInstance(instance);
-            newFavorite.setSubject(subject);
-            newFavorite.setUser(userRepository.findByName(name));
-            favoriteRepository.save(newFavorite);
-            return new JsonResult<>(newFavorite);
+        if(favoriteRepository.findByInstanceAndSubjectAndUser(instance, subject, userRepository.findByName(name)) != null) {
+            return new JsonResult<>("404", "Favorite already exists!");
         }
+        Favorite newFavorite = new Favorite();
+        newFavorite.setInstance(instance);
+        newFavorite.setSubject(subject);
+        newFavorite.setUser(userRepository.findByName(name));
+        favoriteRepository.save(newFavorite);
+        return new JsonResult<>(newFavorite);
     }
 
     @GetMapping(path = "/showFavorite")
@@ -203,5 +189,48 @@ public class UserController {
             return new JsonResult<>("404", "Favorite not exist!");
         }
     }
+
+    @GetMapping(path = "/addQuestion")
+    public @ResponseBody JsonResult<Object> addQuestion(@RequestParam Long questionID, @RequestParam String qBody, @RequestParam String qAnswer, @RequestParam String name) {
+        if(questionRepository.findByQuestionIDAndUser(questionID, userRepository.findByName(name)) != null) {
+            return new JsonResult<>("404", "Question already exists!");
+        }
+        Question question = new Question();
+        question.setQuestionID(questionID);
+        question.setAddTime(System.currentTimeMillis());
+        question.setqBody(qBody);
+        question.setqAnswer(qAnswer);
+        question.setRedoTimes(0);
+        question.setRedoCorrectTimes(0);
+        question.setUser(userRepository.findByName(name));
+        questionRepository.save(question);
+        return new JsonResult<>(question);
+    }
+
+    @GetMapping(path = "/deleteQuestion")
+    public @ResponseBody JsonResult<Object> deleteQuestion(@RequestParam Long questionID, @RequestParam String name) {
+        try {
+            questionRepository.deleteByQuestionIDAndUser(questionID, userRepository.findByName(name));
+            return new JsonResult<>();
+        } catch (Exception e) {
+            return new JsonResult<>("404", "Error!");
+        }
+    }
+
+    @GetMapping(path = "/addRightTimes")
+    public @ResponseBody JsonResult<Object> addRightTimes(@RequestParam Long questionID, @RequestParam String name) {
+        Question question = questionRepository.findByQuestionIDAndUser(questionID, userRepository.findByName(name));
+        question.setRedoCorrectTimes(question.getRedoCorrectTimes() + 1);
+        question.setRedoTimes(question.getRedoTimes() + 1);
+        return new JsonResult<>(question);
+    }
+
+    @GetMapping(path = "/addWrongTimes")
+    public @ResponseBody JsonResult<Object> addWrongTimes(@RequestParam Long questionID, @RequestParam String name) {
+        Question question = questionRepository.findByQuestionIDAndUser(questionID, userRepository.findByName(name));
+        question.setRedoTimes(question.getRedoTimes() + 1);
+        return new JsonResult<>(question);
+    }
+
 
 }

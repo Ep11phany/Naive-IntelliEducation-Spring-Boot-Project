@@ -12,8 +12,6 @@ public class Favorite {
 
     private String subject;
 
-    private Long time;
-
     @ManyToOne
     private User user;
 
@@ -43,11 +41,5 @@ public class Favorite {
 
     public void setUser(User user) {
         this.user = user;
-    }
-
-    public Long getTime() { return time; }
-
-    public void setTime(Long time) {
-        this.time = time;
     }
 }

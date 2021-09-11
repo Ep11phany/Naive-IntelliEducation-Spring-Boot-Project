@@ -23,6 +23,9 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Favorite> favoriteList;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Question> questionList;
+
     public Integer getId() {
         return id;
     }
