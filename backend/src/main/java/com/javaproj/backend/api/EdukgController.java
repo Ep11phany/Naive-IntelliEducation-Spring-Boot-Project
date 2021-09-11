@@ -151,7 +151,7 @@ public class EdukgController {
                     if(instanceReturn.getString("code") != "0") {
                         JSONObject searchInstanceReturn = restTemplate.getForObject(anotherUrl, JSONObject.class, course, instanceReturn.getJSONObject("data").getString("label"), id);
                         if(searchInstanceReturn.getJSONArray("data").size() == 0) {
-                            instanceReturn.getJSONObject("data").put("catagory", "");
+                            instanceReturn.getJSONObject("data").put("category", "");
                             res.add(instanceReturn.toJSONString());
                             utils.add(i);
                             break;
@@ -159,7 +159,7 @@ public class EdukgController {
                             JSONArray jsonArray1 = searchInstanceReturn.getJSONArray("data");
                             for (int j = 0; j < jsonArray1.size(); j++) {
                                 if (((String) jsonArray1.getJSONObject(j).get("label")).equals(nameList.get(i))) {
-                                    instanceReturn.getJSONObject("data").put("catagory", jsonArray1.getJSONObject(j).getString("category"));
+                                    instanceReturn.getJSONObject("data").put("category", jsonArray1.getJSONObject(j).getString("category"));
                                     res.add(instanceReturn.toJSONString());
                                     utils.add(i);
                                     break;
