@@ -207,6 +207,11 @@ public class UserController {
         return new JsonResult<>(question);
     }
 
+    @GetMapping(path = "/showQuestion")
+    public @ResponseBody JsonResult<Object> showQuestion(@RequestParam String name) {
+        return new JsonResult<>(questionRepository.findAllByUser(userRepository.findByName(name)));
+    }
+
     @GetMapping(path = "/deleteQuestion")
     public @ResponseBody JsonResult<Object> deleteQuestion(@RequestParam Long questionID, @RequestParam String name) {
         try {
